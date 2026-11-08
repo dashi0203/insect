@@ -15,7 +15,7 @@ namespace Swarm.EditorTools
 {
     /// <summary>
     /// 生成 / 升级主场景 Assets/_Project/Scenes/Main.unity，以及配置资产和材质。
-    /// 编译后自动：场景不存在 → 生成；场景里没有 WorldController → 升级到 M1（去掉 M0 参考地面，加入世界）。
+    /// 编译后自动：场景不存在 → 生成；场景里没有 GameRoot → 升级到 M1（去掉 M0 参考地面，加入世界）。
     /// 菜单：Swarm/Build Main Scene（重建），Swarm/Recreate Default Data（按 GDD 默认值重建配置资产）。
     /// </summary>
     [InitializeOnLoad]
@@ -30,7 +30,7 @@ namespace Swarm.EditorTools
         const string TerrainMatPath = ArtRoot + "/Terrain.mat";
         const string CoverMatPath = ArtRoot + "/GroundCover.mat";
         const string ResourceMatPath = ArtRoot + "/ResourceNode.mat";
-        const string WorldControllerScript = "Assets/_Project/Scripts/World/WorldController.cs";
+        const string GameRootScript = "Assets/_Project/Scripts/Game/Core/GameRoot.cs";
 
         static M0SceneBuilder()
         {
@@ -42,7 +42,7 @@ namespace Swarm.EditorTools
             if (EditorApplication.isPlayingOrWillChangePlaymode || EditorApplication.isCompiling) return;
             if (!File.Exists(ScenePath)) { Build(); return; }
             bool dataUpgraded = UpgradeData();
-            string guid = AssetDatabase.AssetPathToGUID(WorldControllerScript);
+            string guid = AssetDatabase.AssetPathToGUID(GameRootScript);
             if (!string.IsNullOrEmpty(guid) && !File.ReadAllText(ScenePath).Contains(guid))
             {
                 UpgradeToM1();
@@ -141,7 +141,7 @@ namespace Swarm.EditorTools
         {
             if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
             var scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
-            var wc = Object.FindFirstObjectByType<WorldController>();
+            var wc = Object.FindFirstObjectByType<GameRoot>();
             if (wc == null) return;
             var so = new SerializedObject(wc);
             SetArray(so.FindProperty("regions"), LoadAll<RegionDef>("Regions"));
@@ -199,16 +199,16 @@ namespace Swarm.EditorTools
             var scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
             var ground = GameObject.Find("ReferenceGround");
             if (ground != null) Object.DestroyImmediate(ground);
-            if (Object.FindFirstObjectByType<WorldController>() == null) AddWorld();
+            if (Object.FindFirstObjectByType<GameRoot>() == null) AddWorld();
             EditorSceneManager.SaveScene(scene);
-            Debug.Log("[Swarm] Main scene upgraded to M1 (WorldController added, reference ground removed).");
+            Debug.Log("[Swarm] Main scene upgraded to M1 (GameRoot added, reference ground removed).");
         }
 
         static void AddWorld()
         {
             var data = EnsureData();
             var go = new GameObject("World");
-            var wc = go.AddComponent<WorldController>();
+            var wc = go.AddComponent<GameRoot>();
             var so = new SerializedObject(wc);
             so.FindProperty("balance").objectReferenceValue = data.balance;
             SetArray(so.FindProperty("regions"), data.regions);

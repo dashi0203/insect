@@ -2,7 +2,8 @@
     "name": "Swarm.Editor",
     "rootNamespace": "Swarm.Editor",
     "references": [
-        "Swarm.Runtime"
+        "Swarm.Sim",
+        "Swarm.Game"
     ],
     "includePlatforms": [
         "Editor"

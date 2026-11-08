@@ -2,7 +2,8 @@
     "name": "Swarm.Tests.EditMode",
     "rootNamespace": "Swarm.Tests",
     "references": [
-        "Swarm.Runtime",
+        "Swarm.Sim",
+        "Swarm.Game",
         "Unity.Mathematics",
         "Unity.Collections",
         "UnityEngine.TestRunner",

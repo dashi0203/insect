@@ -76,9 +76,9 @@ namespace Swarm.Tests
         [Test]
         public void SameSeed_SameRandom()
         {
-            var a = new SimulationWorld(42).CreateRandom(RandomStreams.WorldGen);
-            var b = new SimulationWorld(42).CreateRandom(RandomStreams.WorldGen);
-            var other = new SimulationWorld(42).CreateRandom(RandomStreams.Ecology);
+            var a = SimRandom.Create(42, RandomStreams.WorldGen);
+            var b = SimRandom.Create(42, RandomStreams.WorldGen);
+            var other = SimRandom.Create(42, RandomStreams.Ecology);
             Assert.AreEqual(a.NextUInt(), b.NextUInt());
             Assert.AreNotEqual(a.NextUInt(), other.NextUInt());
         }
