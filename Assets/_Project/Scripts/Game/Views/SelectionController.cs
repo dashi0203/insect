@@ -195,7 +195,9 @@ namespace Swarm.Views
                 }
                 case AgentState.WorkerReturn:
                     _sb.Append("状态：返巢\n");
-                    _sb.Append($"意图：背着 {a.Carry:0.0} {KindNames[a.CarryKind]} 回巢，沿途留下路径信息素\n");
+                    _sb.Append(a.Carry > 0f
+                        ? $"意图：背着 {a.Carry:0.0} {KindNames[a.CarryKind]} 回巢，沿途留下路径信息素\n"
+                        : "意图：找了很久没找到资源，空手回巢，到了再重新选一种\n");
                     _sb.Append(homing == PheromoneFields.Unreachable ? "回巢路线：无法到达巢口\n" : $"离巢口还有 {homing} 格\n");
                     break;
                 case AgentState.WorkerFlee:
@@ -206,6 +208,9 @@ namespace Swarm.Views
                     break;
             }
 
+            if (w.GatherRegions.TryGetRegionAt(tile, out var region))
+                _sb.Append($"所在采集区：{region.Crowd} / {region.Capacity:0} 只" +
+                           (region.Factor <= 0f ? "（已满，不再吸引远处工虫）\n" : $"（还能吸引 {region.Factor * 100f:0}%）\n"));
             _sb.Append($"携带：{(a.Carry > 0f ? $"{a.Carry:0.0} {KindNames[a.CarryKind]}" : "无")}　　生命 {a.Health:0}/{tier.health:0}　　年龄 {a.Age:0} 秒\n");
             _sb.Append($"位置 ({a.Position.x:0}, {a.Position.y:0})　{(covered ? "覆盖范围内" : "覆盖范围外")}　速度 {math.length(a.Velocity):0.0} 格/秒");
             return _sb.ToString();
@@ -223,7 +228,7 @@ namespace Swarm.Views
             if (!covered) return "在覆盖范围外，正被拉回巢附近";
             if (avoid > 0.2f) return "在回避信息素里，正在离开";
             if (gatherHere > _world.Balance.gatherOverrideThreshold) return "在采集信息素区域里：碰到任何资源都会采";
-            if (gatherFar > 0.01f) return "感觉到远处的采集信息素，正往那边走";
+            if (gatherFar > 0.01f) return "感觉到远处还有空位的采集区，正往那边走";
             if (scent > 0.05f) return $"闻到{kind}的气味（{scent:0.00}），正在靠近";
             if (trail > 0.5f) return "沿着同伴留下的路径走";
             return $"附近没有线索，四处游荡寻找{kind}";

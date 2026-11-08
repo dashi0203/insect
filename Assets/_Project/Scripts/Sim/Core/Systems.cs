@@ -50,8 +50,14 @@ namespace Swarm.Core
         public void Tick(SimulationWorld w, float dt)
         {
             w.Pheromones.RecomputeEnvironment(w.Env, w.Resources);
-            w.Pheromones.UpdatePaintReach(true); // 覆盖外的绘制层会逐渐消散，每秒强制刷新一次
         }
+    }
+
+    /// <summary>1 Hz：采集区拥挤统计 + 远距离吸引重算；没有任何涂抹时整步跳过（GDD 4.3）。</summary>
+    public sealed class GatherRegionSystem : ISimSystem
+    {
+        public string Name => "GatherRegions";
+        public void Tick(SimulationWorld w, float dt) => w.RefreshPaint(true);
     }
 
     /// <summary>5 Hz：信息素场扩散、衰减、向绘制层靠拢（GDD 4.2）。</summary>
@@ -67,8 +73,9 @@ namespace Swarm.Core
         public string Name => "Steering";
         public void Tick(SimulationWorld w, float dt)
         {
-            w.Pheromones.UpdatePaintReach(false);
-            w.Steering.Build(w.Pheromones, w.Coverage.Covered, w.Balance.gradientSaturation, w.Balance.searchLeashStrength);
+            w.RefreshPaint(false);
+            w.Steering.Build(w.Pheromones, w.Coverage.Covered, w.Balance.gradientSaturation, w.Balance.searchLeashStrength,
+                w.GatherRegions, w.Balance.gatherOverflowPush);
         }
     }
 

@@ -178,6 +178,10 @@ namespace Swarm.Data
         public float paintReachRange = 40f;
         [Tooltip("所在格采集信息素高于该值时，工虫见到任何资源都会采（不限所选资源）")]
         public float gatherOverrideThreshold = 0.2f;
+        [Tooltip("采集区容量：每个普通可采实体提供的工虫岗位")] public float gatherSlotsPerNode = 2f;
+        [Tooltip("每个巨型可采实体提供的岗位")] public float gatherSlotsPerGiant = 6f;
+        [Tooltip("没有资源的采集区的保底岗位")] public float gatherMinSlots = 2f;
+        [Tooltip("采集区超员时把多余工虫推离区域中心的力度（超员 100% 时）")] public float gatherOverflowPush = 2f;
 
         [Header("Workers (4.6 / 7.2)")]
         [Tooltip("资源实体在该距离内时开始采集（Tile）")] public float harvestRange = 1.5f;

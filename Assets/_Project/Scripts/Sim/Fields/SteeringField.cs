@@ -24,6 +24,7 @@ namespace Swarm.Fields
         public readonly int Size, TileCount;
         public NativeArray<float2> Field; // [profile * tiles + tile]
         NativeArray<float> _weights;      // [profile * Stride + channel]，最后一位是归巢权重
+        NativeArray<GatherRegions.Region> _noRegions;
         public float LastBuildMs { get; private set; }
 
         const int Stride = Pheromones.ChannelCount + 1;
@@ -34,6 +35,7 @@ namespace Swarm.Fields
             TileCount = size * size;
             Field = new NativeArray<float2>(ProfileCount * TileCount, Allocator.Persistent);
             _weights = new NativeArray<float>(ProfileCount * Stride, Allocator.Persistent);
+            _noRegions = new NativeArray<GatherRegions.Region>(1, Allocator.Persistent);
             SetWeights(b);
         }
 
@@ -59,7 +61,8 @@ namespace Swarm.Fields
             _weights[o + Pheromones.ChannelCount] = w.homing;
         }
 
-        public void Build(PheromoneFields fields, NativeArray<byte> covered, float saturation, float leash)
+        public void Build(PheromoneFields fields, NativeArray<byte> covered, float saturation, float leash,
+            GatherRegions regions = null, float overflowPush = 0f)
         {
             var sw = System.Diagnostics.Stopwatch.StartNew();
             new BuildJob
@@ -71,6 +74,11 @@ namespace Swarm.Fields
                 cur = fields.Current,
                 reach = fields.PaintReach,
                 covered = covered,
+                hasRegions = regions != null,
+                overflow = regions != null ? regions.Overflow : fields.PaintReach, // 无采集区时传任意数组，不读取
+                label = regions != null ? regions.Label : fields.HomingDistance,
+                regionList = regions != null ? regions.Regions : _noRegions,
+                overflowPush = overflowPush,
                 open = fields.Open,
                 homing = fields.HomingDistance,
                 weights = _weights,
@@ -96,6 +104,7 @@ namespace Swarm.Fields
         {
             if (Field.IsCreated) Field.Dispose();
             if (_weights.IsCreated) _weights.Dispose();
+            if (_noRegions.IsCreated) _noRegions.Dispose();
         }
 
         [BurstCompile(CompileSynchronously = true)]
@@ -106,6 +115,11 @@ namespace Swarm.Fields
             [ReadOnly] public NativeArray<float> cur;
             [ReadOnly] public NativeArray<float> reach;
             [ReadOnly] public NativeArray<byte> covered;
+            public bool hasRegions;
+            public float overflowPush;
+            [ReadOnly] public NativeArray<float> overflow;
+            [ReadOnly] public NativeArray<int> label;
+            [ReadOnly] public NativeArray<GatherRegions.Region> regionList;
             [ReadOnly] public NativeArray<byte> open;
             [ReadOnly] public NativeArray<int> homing;
             [ReadOnly] public NativeArray<float> weights;
@@ -139,6 +153,15 @@ namespace Swarm.Fields
                 g[(int)PheromoneChannel.Rally] = ReachDir(1, i, m);
                 float2 home = HomingDir(i, m);
                 bool outside = covered[i] == 0;
+                // 采集区超员：把多出来的工虫推离区域中心
+                float2 evict = 0;
+                if (hasRegions && overflowPush > 0f)
+                {
+                    float o = overflow[i];
+                    int l = label[i];
+                    if (o > 0f && l >= 0)
+                        evict = math.normalizesafe(new float2(i % size, i / size) + 0.5f - regionList[l].Center, new float2(1, 0)) * (o * overflowPush);
+                }
 
                 for (int p = 0; p < ProfileCount; p++)
                 {
@@ -151,6 +174,7 @@ namespace Swarm.Fields
                     }
                     sum += weights[wo + Pheromones.ChannelCount] * home;
                     if (outside && p <= ProfileSearchBuild) sum += home * leash;
+                    if (p <= ProfileSearchBuild) sum += evict;
                     field[p * tiles + i] = sum;
                 }
             }

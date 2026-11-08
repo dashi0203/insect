@@ -273,6 +273,14 @@ namespace Swarm.Core
             string stock = "";
             for (int k = 0; k < 3; k++)
                 stock += $"{(ResourceKind)k} {col.Stock[k]:0}/{col.Capacity[k]:0} ({col.NetChange60(k):+0;-0}/60s)  ";
+            string regions = "";
+            var gr = w.GatherRegions;
+            for (int k = 0; k < gr.Count && k < 6; k++)
+            {
+                var rg = gr.Regions[k];
+                regions += $"#{k} {rg.Crowd}/{rg.Capacity:0}  ";
+            }
+            if (gr.Count == 0) regions = "none";
             string systems = "";
             foreach (var kv in w.SystemMs) systems += $"{kv.Key} {kv.Value:0.00}  ";
             return
@@ -285,6 +293,7 @@ namespace Swarm.Core
                 $"Cover tiles  {cover}\n" +
                 $"Workers {agents.Length}  search {search}  harvest {harvest}  return {ret}   drawn {_agentRenderer?.Drawn}\n" +
                 $"Stock  {stock}\n" +
+                $"Gather areas  {regions}   reach {w.Pheromones.LastReachMs:0.00} ms  regions {gr.LastBuildMs:0.00} ms\n" +
                 $"Systems ms  {systems}\n" +
                 "Tab region   N new seed   R regen   H harvest all   ] next season   K +500 workers (Shift x10)   M overlay: " + _terrainOverlay;
         }

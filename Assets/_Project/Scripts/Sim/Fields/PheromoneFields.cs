@@ -69,6 +69,14 @@ namespace Swarm.Fields
         NativeArray<float> _reach, _reachFalloff;
         bool _reachDirty = true;
 
+        /// <summary>玩家绘制层（目标层的前三个通道）。</summary>
+        public NativeArray<float> PaintLayer => _target;
+        /// <summary>自上次重算远距离吸引后，绘制层是否被涂抹 / 擦除过。</summary>
+        public bool PaintDirty => _reachDirty;
+        /// <summary>上次重算时是否存在任何采集 / 集结涂抹（没有时 1 Hz 刷新整个跳过）。</summary>
+        public bool HasPaint { get; private set; }
+        public float LastReachMs { get; private set; }
+
         public float LastStepMs { get; private set; }
         public float LastEnvironmentMs { get; private set; }
 
@@ -304,17 +312,24 @@ namespace Swarm.Fields
 
         // ---------------------------------------------------------------- paint reach
 
-        /// <summary>绘制层有变化（或 force）时重算远距离吸引场。</summary>
-        public void UpdatePaintReach(bool force)
+        /// <summary>
+        /// 重算远距离吸引场。gatherScale：每格的采集吸引缩放（采集区拥挤饱和），为空则不缩放。
+        /// </summary>
+        public void RebuildPaintReach(NativeArray<float> gatherScale)
         {
-            if (!_reachDirty && !force) return;
+            var sw = Stopwatch.StartNew();
             _reachDirty = false;
+            bool scaled = gatherScale.IsCreated;
+            bool any = false;
             int g = (int)PheromoneChannel.Gather * TileCount, r = (int)PheromoneChannel.Rally * TileCount;
             for (int i = 0; i < TileCount; i++)
             {
-                _reach[i] = _target[g + i];
-                _reach[TileCount + i] = _target[r + i];
+                float pg = _target[g + i], pr = _target[r + i];
+                any |= pg > 0f || pr > 0f;
+                _reach[i] = scaled ? pg * gatherScale[i] : pg;
+                _reach[TileCount + i] = pr;
             }
+            HasPaint = any;
             new PropagateJob
             {
                 size = Size,
@@ -324,6 +339,7 @@ namespace Swarm.Fields
                 open = Open,
                 falloff = _reachFalloff,
             }.Schedule(2, 1).Complete();
+            LastReachMs = (float)sw.Elapsed.TotalMilliseconds;
         }
 
         // ---------------------------------------------------------------- homing

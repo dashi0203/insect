@@ -138,18 +138,23 @@ namespace Swarm.Tests
             var c = new float2(spot) + 0.5f;
             Assert.Greater(w.PaintPheromone(PheromoneChannel.Gather, c, 4f, 1f), 0);
 
-            int peak = 0;
-            for (int s = 0; s < 12; s++)
+            w.SpawnWorkers(400); // 工虫远多于采集区容量，才能看出饱和
+            Run(w, 1.0);
+            int tile = w.Env.Index(spot);
+            Assert.IsTrue(w.GatherRegions.TryGetRegionAt(tile, out var region), "painted spot should form a gather area");
+            float capacity = region.Capacity;
+
+            int peak = 0, settled = 0;
+            for (int s = 0; s < 18; s++)
             {
                 Run(w, 5.0);
-                var a = w.Agents.Agents;
-                int near = 0;
-                for (int i = 0; i < a.Length; i++)
-                    if (math.distance(a[i].Position, c) < 6f) near++;
-                peak = math.max(peak, near);
+                w.GatherRegions.TryGetRegionAt(tile, out region);
+                peak = math.max(peak, region.Crowd);
+                if (s >= 12) settled = math.max(settled, region.Crowd);
             }
-            Debug.Log($"[Test] peak {peak}/{w.Agents.Count} workers near the painted spot");
-            Assert.Greater(peak, w.Agents.Count / 5, "painting gather should pull a good share of workers to it");
+            Debug.Log($"[Test] gather area capacity {capacity:0}, peak crowd {peak}, settled crowd {settled}, workers {w.Agents.Count}");
+            Assert.GreaterOrEqual(peak, math.min(capacity, 3f), "painting gather should pull workers to it");
+            Assert.LessOrEqual(settled, capacity * 1.5f + 8f, "once full, the area should stop pulling more workers");
         }
     }
 }

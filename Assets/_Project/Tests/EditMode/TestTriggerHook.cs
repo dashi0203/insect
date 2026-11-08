@@ -15,6 +15,7 @@ namespace Swarm.Tests
     {
         const string TriggerPath = "Temp/swarm_run_tests";
         const string ResultPath = "Temp/swarm_test_results.txt";
+        const string RefreshedPath = "Temp/swarm_tests_refreshed";
         static double s_nextPoll;
 
         static TestTriggerHook() => EditorApplication.update += Poll;
@@ -29,7 +30,15 @@ namespace Swarm.Tests
                 File.WriteAllText(ResultPath, "BLOCKED: editor is in play mode\n");
                 return;
             }
-            if (EditorApplication.isCompiling) return;
+            if (EditorApplication.isCompiling || EditorApplication.isUpdating) return;
+            // 先刷新资源：外部改过的脚本会在这里触发编译 + 域重载，重载后下一次轮询再跑测试
+            if (!File.Exists(RefreshedPath))
+            {
+                File.WriteAllText(RefreshedPath, "");
+                AssetDatabase.Refresh();
+                return;
+            }
+            File.Delete(RefreshedPath);
             File.Delete(TriggerPath);
             File.WriteAllText(ResultPath, "RUNNING\n");
 

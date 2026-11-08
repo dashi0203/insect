@@ -94,6 +94,8 @@ namespace Swarm.Core
         /// <summary>每格可采集实体索引，1 Hz 随资源结算重建。</summary>
         public ResourceLookup Lookup { get; private set; }
         public AgentStore Agents { get; private set; }
+        /// <summary>采集区与拥挤饱和。</summary>
+        public GatherRegions GatherRegions { get; private set; }
         public ColonyStore Colony { get; private set; }
         public WorldStats Stats { get; private set; }
 
@@ -154,6 +156,7 @@ namespace Swarm.Core
             Coverage = new CoverageMap(Env.Size);
             Pheromones = new PheromoneFields(Env, b);
             Steering = new SteeringField(Env.Size, b);
+            GatherRegions = new GatherRegions(Env.Size);
             RefreshBuildingDerived();
             Pheromones.RecomputeEnvironment(Env, Resources);
             Buildings.Changed += OnBuildingsChanged;
@@ -174,6 +177,7 @@ namespace Swarm.Core
             _hz1.Add(new SeasonSystem());
             _hz1.Add(new ResourceRegrowthSystem());
             _hz1.Add(new ResourceLookupSystem());
+            _hz1.Add(new GatherRegionSystem());
             _hz1.Add(new GroundCoverSystem());
             _hz1.Add(new EnvironmentScentSystem());
             _hz1.Add(new EconomySystem());
@@ -257,8 +261,20 @@ namespace Swarm.Core
         {
             Coverage.Recompute(Buildings.Buildings);
             Pheromones.RecomputeHoming(Buildings.Entrances());
-            Pheromones.UpdatePaintReach(true);
+            if (Lookup != null) RefreshPaint(true);
+            else Pheromones.RebuildPaintReach(default);
             Steering.Build(Pheromones, Coverage.Covered, Balance.gradientSaturation, Balance.searchLeashStrength);
+        }
+
+        /// <summary>
+        /// 采集区统计 + 远距离吸引重算。force = 1 Hz 例行刷新（拥挤人数在变）：没有任何涂抹时跳过；
+        /// 否则只在涂抹 / 擦除之后重算。
+        /// </summary>
+        internal void RefreshPaint(bool force)
+        {
+            if (!Pheromones.PaintDirty && !(force && Pheromones.HasPaint)) return;
+            GatherRegions.Build(Pheromones, Resources, Lookup, Agents, Balance);
+            Pheromones.RebuildPaintReach(GatherRegions.Scale);
         }
 
         /// <summary>调试 / 性能测试：在巢心附近生成工虫。返回实际生成数量。</summary>
@@ -289,6 +305,7 @@ namespace Swarm.Core
             Colony?.Dispose(); Colony = null;
             Lookup?.Dispose(); Lookup = null;
             Steering?.Dispose(); Steering = null;
+            GatherRegions?.Dispose(); GatherRegions = null;
             Pheromones?.Dispose(); Pheromones = null;
             Coverage?.Dispose(); Coverage = null;
             Cover?.Dispose(); Cover = null;

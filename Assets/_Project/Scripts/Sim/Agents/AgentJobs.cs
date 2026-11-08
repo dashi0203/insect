@@ -126,8 +126,11 @@ namespace Swarm.Agents
                     }
                     if (a.StateTimer > p.GiveUpSeconds)
                     {
-                        a.Flags |= (byte)AgentFlags.RequestRechoose;
+                        // 找了很久没找到：空手回巢，卸货时重新选资源（不会困在台地或空涂抹区里）
+                        a.State = (byte)AgentState.WorkerReturn;
+                        a.Carry = 0f;
                         a.StateTimer = 0f;
+                        break;
                     }
                     if (a.Health < t.Health * p.FleeHealth && alarm[tile] > p.FleeAlarm)
                     {
@@ -150,7 +153,7 @@ namespace Swarm.Agents
                 case AgentState.WorkerReturn:
                 {
                     desired = SteeringField.Sample(steering, size, SteeringField.ProfileReturn, a.Position);
-                    a.Flags |= (byte)AgentFlags.DepositTrail;
+                    if (a.Carry > 0f) a.Flags |= (byte)AgentFlags.DepositTrail; // 空手回巢不留路径
                     if (homing[tile] <= p.UnloadDistance) a.Flags |= (byte)AgentFlags.RequestUnload;
                     break;
                 }
