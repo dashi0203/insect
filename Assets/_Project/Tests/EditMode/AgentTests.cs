@@ -101,5 +101,55 @@ namespace Swarm.Tests
                       $"steering build {w.Steering.LastBuildMs:0.00} ms, lookup {w.Lookup.LastBuildMs:0.00} ms");
             Assert.Less(avg, 8.0, "GDD 14: one 10 Hz tick for 20000 bugs must stay under 8 ms");
         }
+
+        [Test]
+        public void SearchingWorkers_StayInsideCoverage()
+        {
+            using var w = SimulationWorld.Create(SimContent.Defaults(), 0, 21);
+            w.SpawnWorkers(800);
+            Run(w, 120.0);
+            var a = w.Agents.Agents;
+            int outside = 0;
+            for (int i = 0; i < a.Length; i++)
+                if (!w.Coverage.IsCovered((int)a[i].Position.x, (int)a[i].Position.y)) outside++;
+            Debug.Log($"[Test] {outside}/{a.Length} workers outside coverage after 120 s");
+            Assert.Less(outside, a.Length * 0.02f, "workers should not wander out of the colony's coverage");
+        }
+
+        [Test]
+        public void PaintedGather_AttractsWorkersFromAfar()
+        {
+            using var w = SimulationWorld.Create(SimContent.Defaults(), 0, 21);
+            Assert.IsTrue(w.Buildings.TryGetNestCore(out var core));
+            // 找一块离巢心 14–20 格、在覆盖内、可从巢口到达的地面
+            int2 spot = default;
+            bool found = false;
+            for (int r = 14; r <= 20 && !found; r++)
+            for (int k = 0; k < 64 && !found; k++)
+            {
+                float ang = k / 64f * math.PI * 2f;
+                int2 t = core.Tile + new int2((int)(math.cos(ang) * r), (int)(math.sin(ang) * r));
+                if (!w.Env.InBounds(t) || !w.Coverage.IsCovered(t.x, t.y)) continue;
+                if (w.Pheromones.HomingDistance[w.Env.Index(t)] == PheromoneFields.Unreachable) continue;
+                spot = t;
+                found = true;
+            }
+            Assert.IsTrue(found, "need a reachable covered spot");
+            var c = new float2(spot) + 0.5f;
+            Assert.Greater(w.PaintPheromone(PheromoneChannel.Gather, c, 4f, 1f), 0);
+
+            int peak = 0;
+            for (int s = 0; s < 12; s++)
+            {
+                Run(w, 5.0);
+                var a = w.Agents.Agents;
+                int near = 0;
+                for (int i = 0; i < a.Length; i++)
+                    if (math.distance(a[i].Position, c) < 6f) near++;
+                peak = math.max(peak, near);
+            }
+            Debug.Log($"[Test] peak {peak}/{w.Agents.Count} workers near the painted spot");
+            Assert.Greater(peak, w.Agents.Count / 5, "painting gather should pull a good share of workers to it");
+        }
     }
 }

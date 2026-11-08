@@ -42,6 +42,7 @@ namespace Swarm.Agents
                 FleeHealth = b.workerFleeHealth,
                 FleeAlarm = b.workerFleeAlarm,
                 UnloadDistance = b.unloadHomingDistance,
+                GatherOverride = b.gatherOverrideThreshold,
             };
         }
 
@@ -77,6 +78,7 @@ namespace Swarm.Agents
                 homing = w.Pheromones.HomingDistance,
                 temperature = w.Env.Temperature,
                 alarm = field.GetSubArray((int)PheromoneChannel.Alarm * tiles, tiles),
+                gather = field.GetSubArray((int)PheromoneChannel.Gather * tiles, tiles),
                 nodes = w.Resources.Nodes.AsArray(),
                 nodeInfo = w.Lookup.Info,
                 nodeAt = w.Lookup.NodeAt,

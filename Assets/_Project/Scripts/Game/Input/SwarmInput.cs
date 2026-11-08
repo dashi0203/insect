@@ -57,6 +57,7 @@ namespace Swarm.Input
         public static bool HasPointer => Mouse.current != null;
         public static Vector2 PointerPosition => Mouse.current != null ? Mouse.current.position.ReadValue() : Vector2.zero;
         public static bool PrimaryHeld => Mouse.current != null && Mouse.current.leftButton.isPressed;
+        public static bool PrimaryPressed => Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame;
 
         public static bool CtrlHeld => Keyboard.current != null && Keyboard.current.ctrlKey.isPressed;
         public static bool ShiftHeld => Keyboard.current != null && Keyboard.current.shiftKey.isPressed;

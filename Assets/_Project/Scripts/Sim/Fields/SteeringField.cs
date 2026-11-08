@@ -12,6 +12,8 @@ namespace Swarm.Fields
     /// 所以每个行为档案（工虫搜索 ×3 种资源、工虫返巢、兵虫待命）在每格只算一次
     /// Σ 权重 × 饱和梯度 + 归巢方向，存成 float2。单位每步只做一次双线性读取，
     /// 成本与单位数量无关地分摊掉 —— 上万只虫子共享同一张场。
+    /// 采集 / 集结用远距离吸引场（PaintReach）的单位方向，覆盖内任何位置都能感知涂抹区；
+    /// 搜索档案在覆盖范围外额外加回巢拉力（leash），工虫不会漫游出领地。
     /// </summary>
     public sealed class SteeringField : IDisposable
     {
@@ -21,7 +23,7 @@ namespace Swarm.Fields
 
         public readonly int Size, TileCount;
         public NativeArray<float2> Field; // [profile * tiles + tile]
-        NativeArray<float> _weights;      // [profile * 9 + channel]，第 9 位放归巢权重 → 实际 10 个
+        NativeArray<float> _weights;      // [profile * Stride + channel]，最后一位是归巢权重
         public float LastBuildMs { get; private set; }
 
         const int Stride = Pheromones.ChannelCount + 1;
@@ -57,7 +59,7 @@ namespace Swarm.Fields
             _weights[o + Pheromones.ChannelCount] = w.homing;
         }
 
-        public void Build(PheromoneFields fields, float saturation)
+        public void Build(PheromoneFields fields, NativeArray<byte> covered, float saturation, float leash)
         {
             var sw = System.Diagnostics.Stopwatch.StartNew();
             new BuildJob
@@ -65,7 +67,10 @@ namespace Swarm.Fields
                 size = Size,
                 tiles = TileCount,
                 saturation = math.max(1e-4f, saturation),
+                leash = leash,
                 cur = fields.Current,
+                reach = fields.PaintReach,
+                covered = covered,
                 open = fields.Open,
                 homing = fields.HomingDistance,
                 weights = _weights,
@@ -97,8 +102,10 @@ namespace Swarm.Fields
         struct BuildJob : IJobParallelFor
         {
             public int size, tiles;
-            public float saturation;
+            public float saturation, leash;
             [ReadOnly] public NativeArray<float> cur;
+            [ReadOnly] public NativeArray<float> reach;
+            [ReadOnly] public NativeArray<byte> covered;
             [ReadOnly] public NativeArray<byte> open;
             [ReadOnly] public NativeArray<int> homing;
             [ReadOnly] public NativeArray<float> weights;
@@ -127,7 +134,11 @@ namespace Swarm.Fields
                     float len = math.length(grad);
                     g[c] = len > 0f ? grad / (len + saturation) : 0;
                 }
+                // 采集 / 集结：远距离吸引场的单位方向（离涂抹区越近越接近满强度，进入涂抹区后趋于 0）
+                g[(int)PheromoneChannel.Gather] = ReachDir(0, i, m);
+                g[(int)PheromoneChannel.Rally] = ReachDir(1, i, m);
                 float2 home = HomingDir(i, m);
+                bool outside = covered[i] == 0;
 
                 for (int p = 0; p < ProfileCount; p++)
                 {
@@ -139,8 +150,25 @@ namespace Swarm.Fields
                         if (w != 0f) sum += w * g[c];
                     }
                     sum += weights[wo + Pheromones.ChannelCount] * home;
+                    if (outside && p <= ProfileSearchBuild) sum += home * leash;
                     field[p * tiles + i] = sum;
                 }
+            }
+
+            float2 ReachDir(int k, int i, byte m)
+            {
+                int off = k * tiles;
+                float v = reach[off + i];
+                if (v < 0.01f) return 0;
+                float px = (m & Pheromones.OpenPosX) != 0 ? reach[off + i + 1] : v;
+                float nx = (m & Pheromones.OpenNegX) != 0 ? reach[off + i - 1] : v;
+                float py = (m & Pheromones.OpenPosY) != 0 ? reach[off + i + size] : v;
+                float ny = (m & Pheromones.OpenNegY) != 0 ? reach[off + i - size] : v;
+                float2 grad = new float2(px - nx, py - ny);
+                float len = math.length(grad);
+                if (len < 1e-6f) return 0;
+                // 平台区（涂抹区内部）梯度很小 → 方向强度随之减弱，虫子在区内散开而不是挤向一点
+                return grad / len * math.saturate(len / (v * 0.02f + 1e-4f));
             }
 
             float2 HomingDir(int i, byte m)

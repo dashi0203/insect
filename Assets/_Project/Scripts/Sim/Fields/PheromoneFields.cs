@@ -61,6 +61,14 @@ namespace Swarm.Fields
         /// <summary>一次性来源（路径、警报），下一次 Step 加到场上。单线程结算 Job 直接写入。</summary>
         public NativeArray<float> Source => _source;
 
+        /// <summary>
+        /// 采集 / 集结笔刷的远距离吸引（[0] 采集，[1] 集结）：绘制层按距离衰减传播（墙阻挡），
+        /// 让离涂抹区很远的虫子也能知道往哪走；局部场本身扩散很慢，只在近处起作用。
+        /// </summary>
+        public NativeArray<float> PaintReach => _reach;
+        NativeArray<float> _reach, _reachFalloff;
+        bool _reachDirty = true;
+
         public float LastStepMs { get; private set; }
         public float LastEnvironmentMs { get; private set; }
 
@@ -81,6 +89,9 @@ namespace Swarm.Fields
             HomingDistance = new NativeArray<int>(TileCount, a);
             _params = new NativeArray<ChannelParams>(C, a);
             _falloff = new NativeArray<float>(C, a);
+            _reach = new NativeArray<float>(2 * TileCount, a);
+            _reachFalloff = new NativeArray<float>(2, a);
+            _reachFalloff[0] = _reachFalloff[1] = math.exp(-1f / math.max(1f, b.paintReachRange));
 
             for (int c = 0; c < C; c++)
             {
@@ -183,6 +194,7 @@ namespace Swarm.Fields
                 if (w > _target[off + i]) _target[off + i] = w;
                 painted++;
             });
+            if (painted > 0) _reachDirty = true;
             return painted;
         }
 
@@ -193,6 +205,7 @@ namespace Swarm.Fields
             {
                 for (int c = 0; c <= (int)PheromoneChannel.Avoid; c++) _target[c * TileCount + i] = 0f;
             });
+            _reachDirty = true;
         }
 
         void ForDisc(float2 center, float radius, Action<int, float> visit)
@@ -287,6 +300,30 @@ namespace Swarm.Fields
                 falloff = _falloff,
             }.Schedule(C - first, 1).Complete();
             LastEnvironmentMs = (float)sw.Elapsed.TotalMilliseconds;
+        }
+
+        // ---------------------------------------------------------------- paint reach
+
+        /// <summary>绘制层有变化（或 force）时重算远距离吸引场。</summary>
+        public void UpdatePaintReach(bool force)
+        {
+            if (!_reachDirty && !force) return;
+            _reachDirty = false;
+            int g = (int)PheromoneChannel.Gather * TileCount, r = (int)PheromoneChannel.Rally * TileCount;
+            for (int i = 0; i < TileCount; i++)
+            {
+                _reach[i] = _target[g + i];
+                _reach[TileCount + i] = _target[r + i];
+            }
+            new PropagateJob
+            {
+                size = Size,
+                tiles = TileCount,
+                firstChannel = 0,
+                field = _reach,
+                open = Open,
+                falloff = _reachFalloff,
+            }.Schedule(2, 1).Complete();
         }
 
         // ---------------------------------------------------------------- homing
@@ -394,6 +431,8 @@ namespace Swarm.Fields
             if (_source.IsCreated) _source.Dispose();
             if (_params.IsCreated) _params.Dispose();
             if (_falloff.IsCreated) _falloff.Dispose();
+            if (_reach.IsCreated) _reach.Dispose();
+            if (_reachFalloff.IsCreated) _reachFalloff.Dispose();
             if (Open.IsCreated) Open.Dispose();
             if (HomingDistance.IsCreated) HomingDistance.Dispose();
         }

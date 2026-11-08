@@ -257,7 +257,8 @@ namespace Swarm.Core
         {
             Coverage.Recompute(Buildings.Buildings);
             Pheromones.RecomputeHoming(Buildings.Entrances());
-            Steering.Build(Pheromones, Balance.gradientSaturation);
+            Pheromones.UpdatePaintReach(true);
+            Steering.Build(Pheromones, Coverage.Covered, Balance.gradientSaturation, Balance.searchLeashStrength);
         }
 
         /// <summary>调试 / 性能测试：在巢心附近生成工虫。返回实际生成数量。</summary>

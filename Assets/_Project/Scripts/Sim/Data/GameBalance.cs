@@ -172,6 +172,12 @@ namespace Swarm.Data
         public float separationStrength = 0.6f;
         [Tooltip("速度向期望方向靠拢的速率（每秒）")] public float steeringResponse = 8f;
         [Tooltip("特大个体对回避和危险的权重倍率")] public float hugeAvoidMultiplier = 0.5f;
+        [Tooltip("搜索中的工虫在覆盖范围外受到的回巢拉力（与梯度合力同量级；0 = 不限制）")]
+        public float searchLeashStrength = 2f;
+        [Tooltip("采集 / 集结笔刷的远距离吸引范围（Tile）：覆盖内这个距离内的虫子都能感知方向")]
+        public float paintReachRange = 40f;
+        [Tooltip("所在格采集信息素高于该值时，工虫见到任何资源都会采（不限所选资源）")]
+        public float gatherOverrideThreshold = 0.2f;
 
         [Header("Workers (4.6 / 7.2)")]
         [Tooltip("资源实体在该距离内时开始采集（Tile）")] public float harvestRange = 1.5f;

@@ -20,6 +20,7 @@ namespace Swarm.Agents
         public float Wander, WanderTurn, SeparationRadius, SeparationStrength, Response;
         public float ColdStop, ColdMultiplier;
         public float FleeHealth, FleeAlarm;
+        public float GatherOverride;
         public int UnloadDistance;
     }
 
@@ -75,6 +76,7 @@ namespace Swarm.Agents
         [ReadOnly] public NativeArray<int> homing;
         [ReadOnly] public NativeArray<float> temperature;
         [ReadOnly] public NativeArray<float> alarm;  // 警报通道（当前场的切片）
+        [ReadOnly] public NativeArray<float> gather; // 采集通道（当前场的切片）
         [ReadOnly] public NativeArray<ResourceNode> nodes;
         [ReadOnly] public NativeArray<NodeInfo> nodeInfo;
         [ReadOnly] public NativeArray<int> nodeAt;
@@ -103,7 +105,18 @@ namespace Swarm.Agents
                 {
                     a.StateTimer += dt;
                     int n = nodeAt[a.ResourceKind * tiles + tile];
-                    if (n >= 0 && ResourceLookup.Harvestable(nodes[n]))
+                    if (n < 0 || !ResourceLookup.Harvestable(nodes[n]))
+                    {
+                        n = -1;
+                        // 玩家涂了采集信息素的地方：见到什么采什么（玩家意图优先于工虫自己的选择）
+                        if (gather[tile] > p.GatherOverride)
+                            for (int k = 0; k < 3 && n < 0; k++)
+                            {
+                                int c = nodeAt[k * tiles + tile];
+                                if (c >= 0 && ResourceLookup.Harvestable(nodes[c])) n = c;
+                            }
+                    }
+                    if (n >= 0)
                     {
                         a.State = (byte)AgentState.WorkerHarvest;
                         a.Target = n;

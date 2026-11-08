@@ -47,7 +47,11 @@ namespace Swarm.Core
     public sealed class EnvironmentScentSystem : ISimSystem
     {
         public string Name => "Scent";
-        public void Tick(SimulationWorld w, float dt) => w.Pheromones.RecomputeEnvironment(w.Env, w.Resources);
+        public void Tick(SimulationWorld w, float dt)
+        {
+            w.Pheromones.RecomputeEnvironment(w.Env, w.Resources);
+            w.Pheromones.UpdatePaintReach(true); // 覆盖外的绘制层会逐渐消散，每秒强制刷新一次
+        }
     }
 
     /// <summary>5 Hz：信息素场扩散、衰减、向绘制层靠拢（GDD 4.2）。</summary>
@@ -61,7 +65,11 @@ namespace Swarm.Core
     public sealed class SteeringFieldSystem : ISimSystem
     {
         public string Name => "Steering";
-        public void Tick(SimulationWorld w, float dt) => w.Steering.Build(w.Pheromones, w.Balance.gradientSaturation);
+        public void Tick(SimulationWorld w, float dt)
+        {
+            w.Pheromones.UpdatePaintReach(false);
+            w.Steering.Build(w.Pheromones, w.Coverage.Covered, w.Balance.gradientSaturation, w.Balance.searchLeashStrength);
+        }
     }
 
     /// <summary>1 Hz：资源结算后重建每格可采集实体索引。</summary>

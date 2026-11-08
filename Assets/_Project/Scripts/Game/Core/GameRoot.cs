@@ -56,6 +56,7 @@ namespace Swarm.Core
         HoverFade _hover;
         // 跨世界保留
         BrushController _brush;
+        SelectionController _selection;
 
         public SimulationWorld World => _world;
 
@@ -77,6 +78,7 @@ namespace Swarm.Core
             if (cameraRig == null) cameraRig = FindFirstObjectByType<RtsCamera>();
             if (uiDocument == null) uiDocument = FindFirstObjectByType<UIDocument>();
             _brush = new BrushController(transform, _content.Balance);
+            _selection = new SelectionController(transform);
         }
 
         void OnEnable() => DebugInfo.Register(DebugText);
@@ -93,6 +95,7 @@ namespace Swarm.Core
             if (_loop != null) _loop.OnStep -= OnStep;
             DisposeWorld();
             _brush?.Dispose();
+            _selection?.Dispose();
             if (_buildingMaterial != null) Destroy(_buildingMaterial);
         }
 
@@ -134,6 +137,8 @@ namespace Swarm.Core
             _hover = new HoverFade(_picker, _world.Env.Size, b.mountainFadeRadius);
             _brush.Bind(_world, _picker, _overlay);
             _brush.BuildCard(uiDocument, _overlay.Colors);
+            _selection.Bind(_world, _picker, _content.Resources);
+            _selection.BuildPanel(uiDocument);
 
             _world.CoverStepped += OnCoverStepped;
             _world.BuildingsChanged += OnBuildingsChanged;
@@ -163,6 +168,7 @@ namespace Swarm.Core
                 _world.BuildingsChanged -= OnBuildingsChanged;
             }
             _brush?.Bind(null, null, null);
+            _selection?.Bind(null, null, null);
             _overlay?.Dispose(); _overlay = null;
             _buildingRenderer?.Dispose(); _buildingRenderer = null;
             _resourceRenderer?.Dispose(); _resourceRenderer = null;
@@ -208,7 +214,10 @@ namespace Swarm.Core
             if (_cam == null) _cam = Camera.main;
 
             Shader.SetGlobalFloat(SnowId, Mathf.Clamp01((1f - (_world.Region.baseTemperature + _world.Season.TemperatureOffset)) / 6f));
+            _brush.ExtraUiHover = _selection.PointerOverPanel;
             _brush.Update(_cam);
+            _selection.Update(_cam, _brush.Tool == BrushTool.None && !SwarmInput.PointerOverUi,
+                _loop != null ? _loop.RenderAlpha : 1f);
             _hover.Update(_cam);
             _overlay.UploadIfDirty();
             _resourceRenderer.Draw(_world.Resources, _world.Env, _world.Balance, _cam, _world.Time);

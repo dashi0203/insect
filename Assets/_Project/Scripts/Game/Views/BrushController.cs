@@ -34,6 +34,9 @@ namespace Swarm.Views
 
         public BrushTool Tool => _tool;
 
+        /// <summary>其他 UI（选中面板等）在指针下方时由组合根置位。</summary>
+        public bool ExtraUiHover { get; set; }
+
         public BrushController(Transform parent, GameBalance balance)
         {
             _balance = balance;
@@ -79,7 +82,7 @@ namespace Swarm.Views
         {
             if (_world == null) return;
             HandleKeys();
-            SwarmInput.PointerOverUi = _card != null && _card.PointerOver;
+            SwarmInput.PointerOverUi = (_card != null && _card.PointerOver) || ExtraUiHover;
 
             bool picked = false;
             Vector3 hit = default;
