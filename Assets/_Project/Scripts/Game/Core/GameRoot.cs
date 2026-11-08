@@ -11,7 +11,8 @@ namespace Swarm.Core
     /// <summary>
     /// 组合根：创建 SimulationWorld，把 GameLoop 的节拍接到 SimulationWorld.Step，并创建只读模拟数据的各个视图。
     /// 模拟状态全部在 SimulationWorld 里；这里只做装配、调试按键和每帧的渲染驱动。
-    /// 调试键：Tab 切换区域，N 新种子，R 同种子重新生成，H 取空全部资源，] 下一季节，M 地形调试着色。
+    /// 调试键：Tab 切换区域，N 新种子，R 同种子重新生成，H 取空全部资源，] 下一季节，M 地形调试着色，
+    /// K 生成 500 只工虫（Shift + K 生成 5000 只）。
     /// </summary>
     [DefaultExecutionOrder(-500)]
     public sealed class GameRoot : MonoBehaviour
@@ -49,6 +50,7 @@ namespace Swarm.Core
         GroundCoverRenderer _coverRenderer;
         ResourceRenderer _resourceRenderer;
         BuildingRenderer _buildingRenderer;
+        AgentRenderer _agentRenderer;
         PheromoneOverlay _overlay;
         WorldPicker _picker;
         HoverFade _hover;
@@ -120,6 +122,8 @@ namespace Swarm.Core
             _coverRenderer.Rebuild(_world.Env, b, _world.Cover, true);
             _resourceRenderer = new ResourceRenderer(_content.Resources,
                 resourceMaterial != null ? resourceMaterial : FallbackMaterial("Swarm/Prop"));
+            _agentRenderer = new AgentRenderer(_world.Env, b,
+                resourceMaterial != null ? resourceMaterial : FallbackMaterial("Swarm/Prop"));
 
             if (_buildingMaterial == null) _buildingMaterial = FallbackMaterial("Swarm/Prop", "Universal Render Pipeline/Lit");
             _buildingRenderer = new BuildingRenderer(transform, _buildingMaterial);
@@ -162,6 +166,7 @@ namespace Swarm.Core
             _overlay?.Dispose(); _overlay = null;
             _buildingRenderer?.Dispose(); _buildingRenderer = null;
             _resourceRenderer?.Dispose(); _resourceRenderer = null;
+            _agentRenderer?.Dispose(); _agentRenderer = null;
             _coverRenderer?.Dispose(); _coverRenderer = null;
             _terrain?.Dispose(); _terrain = null;
             _picker = null;
@@ -207,6 +212,7 @@ namespace Swarm.Core
             _hover.Update(_cam);
             _overlay.UploadIfDirty();
             _resourceRenderer.Draw(_world.Resources, _world.Env, _world.Balance, _cam, _world.Time);
+            _agentRenderer.Draw(_world.Agents, _loop != null ? _loop.RenderAlpha : 1f, _cam);
         }
 
         void HandleDebugInput()
@@ -231,6 +237,8 @@ namespace Swarm.Core
             }
             if (SwarmInput.Pressed(SwarmAction.DebugDepleteResources)) _world.DebugDepleteAllResources();
             if (SwarmInput.Pressed(SwarmAction.DebugNextSeason)) _world.DebugSkipSeason();
+            if (SwarmInput.Pressed(SwarmAction.DebugSpawnWorkers))
+                Debug.Log($"[Swarm] Spawned {_world.SpawnWorkers(SwarmInput.ShiftHeld ? 5000 : 500)} workers (total {_world.Agents.Count}).");
         }
 
         string DebugText()
@@ -243,6 +251,19 @@ namespace Swarm.Core
             string cover = "";
             for (int t = 0; t < _content.Covers.Length; t++)
                 cover += $"{_content.Covers[t].id} {w.Cover.VisibleTiles[t]}  ";
+            int search = 0, harvest = 0, ret = 0;
+            var agents = w.Agents.Agents;
+            for (int i = 0; i < agents.Length; i++)
+            {
+                var st = (Swarm.Agents.AgentState)agents[i].State;
+                if (st == Swarm.Agents.AgentState.WorkerSearch) search++;
+                else if (st == Swarm.Agents.AgentState.WorkerHarvest) harvest++;
+                else if (st == Swarm.Agents.AgentState.WorkerReturn) ret++;
+            }
+            var col = w.Colony;
+            string stock = "";
+            for (int k = 0; k < 3; k++)
+                stock += $"{(ResourceKind)k} {col.Stock[k]:0}/{col.Capacity[k]:0} ({col.NetChange60(k):+0;-0}/60s)  ";
             string systems = "";
             foreach (var kv in w.SystemMs) systems += $"{kv.Key} {kv.Value:0.00}  ";
             return
@@ -253,8 +274,10 @@ namespace Swarm.Core
                 $"Nodes {res.Nodes.Length}  full {res.CountFull}  regrowing {res.CountRegrowing}  waiting {res.CountWaiting}  dead {res.CountDead}   " +
                 $"drawn chunks {_resourceRenderer?.VisibleChunks}  instances {_resourceRenderer?.DrawnInstances}\n" +
                 $"Cover tiles  {cover}\n" +
+                $"Workers {agents.Length}  search {search}  harvest {harvest}  return {ret}   drawn {_agentRenderer?.Drawn}\n" +
+                $"Stock  {stock}\n" +
                 $"Systems ms  {systems}\n" +
-                "Tab region   N new seed   R regen   H harvest all   ] next season   M overlay: " + _terrainOverlay;
+                "Tab region   N new seed   R regen   H harvest all   ] next season   K +500 workers (Shift x10)   M overlay: " + _terrainOverlay;
         }
     }
 }

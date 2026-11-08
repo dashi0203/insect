@@ -56,6 +56,11 @@ namespace Swarm.Fields
         public NativeArray<byte> Open;
         public NativeArray<int> HomingDistance;
 
+        /// <summary>当前场（只读视图给 Job 用；每次 Step 后换成新缓冲，所以每步重新取）。</summary>
+        public NativeArray<float> Current => _cur;
+        /// <summary>一次性来源（路径、警报），下一次 Step 加到场上。单线程结算 Job 直接写入。</summary>
+        public NativeArray<float> Source => _source;
+
         public float LastStepMs { get; private set; }
         public float LastEnvironmentMs { get; private set; }
 

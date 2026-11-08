@@ -158,6 +158,38 @@ namespace Swarm.Data
         public float pheromoneNodeCoverageRadius = 12f;
         public float outpostCoverageRadius = 16f;
 
+        [Header("Units: size tiers (5.1 / 5.2)")]
+        public SizeTierSettings[] sizeTiers = SizeTierSettings.Defaults();
+
+        [Header("Steering (4.5)")]
+        public SteeringWeights workerSearchWeights = SteeringWeights.WorkerSearch;
+        public SteeringWeights workerReturnWeights = SteeringWeights.WorkerReturn;
+        public SteeringWeights soldierIdleWeights = SteeringWeights.SoldierIdle;
+        [Tooltip("梯度饱和 g / (|g| + k)")] public float gradientSaturation = 0.2f;
+        [Tooltip("游荡噪声强度（与梯度合力同量级）")] public float wanderStrength = 0.45f;
+        [Tooltip("游荡方向每秒最大偏转（弧度）")] public float wanderTurnRate = 2.5f;
+        [Tooltip("分离力作用半径（Tile）")] public float separationRadius = 0.7f;
+        public float separationStrength = 0.6f;
+        [Tooltip("速度向期望方向靠拢的速率（每秒）")] public float steeringResponse = 8f;
+        [Tooltip("特大个体对回避和危险的权重倍率")] public float hugeAvoidMultiplier = 0.5f;
+
+        [Header("Workers (4.6 / 7.2)")]
+        [Tooltip("资源实体在该距离内时开始采集（Tile）")] public float harvestRange = 1.5f;
+        [Tooltip("普通实体一次采集耗时（秒）；慢速实体按 携带量 ÷ 采集速度 计时，取较大者")]
+        public float harvestSeconds = 2f;
+        [Tooltip("返巢工虫每个 10 Hz 步留下的路径信息素")] public float trailDeposit = 0.5f;
+        [Tooltip("离巢口的归巢距离 ≤ 该值时卸货（Tile）")] public int unloadHomingDistance = 2;
+        [Tooltip("搜索超过该时间仍未找到所选资源时重新选择（秒）")] public float searchGiveUpSeconds = 60f;
+        [Tooltip("生命低于该比例且警报高于阈值时逃跑")] public float workerFleeHealth = 0.3f;
+        public float workerFleeAlarm = 2f;
+
+        [Header("Colony (7.1)")]
+        [Tooltip("巢心自带的每种资源存储")] public float nestCoreStorage = 30f;
+        [Tooltip("每个储藏室单元为三种资源各 + 该值")] public float storageChamberCapacity = 60f;
+        [Tooltip("开局储藏室单元数（巢室 M4 之前用这个数算上限）")] public int startingStorageChambers = 2;
+        [Tooltip("开局工虫数（育幼 M5 之前直接在巢心生成）")] public int startingWorkers = 120;
+        [Tooltip("开局工虫中中型的比例")] [Range(0, 1)] public float startingMediumFraction = 0.35f;
+
         [Header("Terrain mesh (14.4)")]
         public float cliffHeight = 2f;
         public float waterDepth = 0.25f;

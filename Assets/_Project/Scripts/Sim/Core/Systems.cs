@@ -1,3 +1,6 @@
+using Swarm.Agents;
+using Unity.Mathematics;
+
 namespace Swarm.Core
 {
     // 节拍系统。每个系统只做一件事；执行顺序由 SimulationWorld 注册顺序决定。
@@ -52,5 +55,36 @@ namespace Swarm.Core
     {
         public string Name => "Pheromones";
         public void Tick(SimulationWorld w, float dt) => w.Pheromones.Step(dt, w.Coverage.Covered);
+    }
+
+    /// <summary>5 Hz：信息素场更新后重建预合成转向场。</summary>
+    public sealed class SteeringFieldSystem : ISimSystem
+    {
+        public string Name => "Steering";
+        public void Tick(SimulationWorld w, float dt) => w.Steering.Build(w.Pheromones, w.Balance.gradientSaturation);
+    }
+
+    /// <summary>1 Hz：资源结算后重建每格可采集实体索引。</summary>
+    public sealed class ResourceLookupSystem : ISimSystem
+    {
+        public string Name => "Lookup";
+        public void Tick(SimulationWorld w, float dt) => w.Lookup.Build(w.Resources, w.Balance.harvestRange);
+    }
+
+    /// <summary>1 Hz：库存历史与工虫选资源权重（GDD 7.2 / 7.4）。</summary>
+    public sealed class EconomySystem : ISimSystem
+    {
+        public string Name => "Economy";
+
+        public void Tick(SimulationWorld w, float dt)
+        {
+            var tiers = w.Balance.sizeTiers;
+            float upkeep = 0f;
+            var agents = w.Agents.Agents;
+            if (tiers != null && tiers.Length == 4)
+                for (int i = 0; i < agents.Length; i++)
+                    if (agents[i].IsAlive) upkeep += tiers[agents[i].Tier].upkeepPerMinute;
+            w.Colony.Tick(upkeep, float3.zero); // 幼虫与待建需求：M4 / M5 接入
+        }
     }
 }

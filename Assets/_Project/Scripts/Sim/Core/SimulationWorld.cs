@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Swarm.Agents;
 using Swarm.Buildings;
+using Swarm.Colony;
 using Swarm.Data;
 using Swarm.Fields;
 using Swarm.World;
@@ -87,6 +89,12 @@ namespace Swarm.Core
         public BuildingSystem Buildings { get; private set; }
         public CoverageMap Coverage { get; private set; }
         public PheromoneFields Pheromones { get; private set; }
+        /// <summary>按行为档案预合成的转向场，5 Hz 随信息素场重建。</summary>
+        public SteeringField Steering { get; private set; }
+        /// <summary>每格可采集实体索引，1 Hz 随资源结算重建。</summary>
+        public ResourceLookup Lookup { get; private set; }
+        public AgentStore Agents { get; private set; }
+        public ColonyStore Colony { get; private set; }
         public WorldStats Stats { get; private set; }
 
         /// <summary>模拟时间（秒）。</summary>
@@ -103,6 +111,7 @@ namespace Swarm.Core
         readonly List<ISimSystem> _hz5 = new List<ISimSystem>();
         readonly List<ISimSystem> _hz1 = new List<ISimSystem>();
         readonly Dictionary<string, float> _systemMs = new Dictionary<string, float>();
+        readonly List<IDisposable> _ownedSystems = new List<IDisposable>();
 
         public IReadOnlyDictionary<string, float> SystemMs => _systemMs;
 
@@ -144,16 +153,30 @@ namespace Swarm.Core
             Buildings.PlaceNestCore(Env, b, Seed);
             Coverage = new CoverageMap(Env.Size);
             Pheromones = new PheromoneFields(Env, b);
+            Steering = new SteeringField(Env.Size, b);
             RefreshBuildingDerived();
             Pheromones.RecomputeEnvironment(Env, Resources);
             Buildings.Changed += OnBuildingsChanged;
 
-            // 节拍系统，顺序即执行顺序（M3 起的单位系统注册到 10 Hz）
+            Lookup = new ResourceLookup(Env.Size, Content.Resources);
+            Lookup.Build(Resources, b.harvestRange);
+            Colony = new ColonyStore(b);
+            Agents = new AgentStore(Env.Size);
+            if (Buildings.TryGetNestCore(out var core))
+                Agents.SpawnWorkers(Env, b, b.startingWorkers, new float2(core.Tile) + 0.5f, 6f, b.startingMediumFraction, Seed);
+
+            // 节拍系统，顺序即执行顺序
+            var agents = new AgentSystem(this);
+            _ownedSystems.Add(agents);
+            _hz10.Add(agents);
             _hz5.Add(new PheromoneFieldSystem());
+            _hz5.Add(new SteeringFieldSystem());
             _hz1.Add(new SeasonSystem());
             _hz1.Add(new ResourceRegrowthSystem());
+            _hz1.Add(new ResourceLookupSystem());
             _hz1.Add(new GroundCoverSystem());
             _hz1.Add(new EnvironmentScentSystem());
+            _hz1.Add(new EconomySystem());
 
             Stats = ComputeStats((float)sw.Elapsed.TotalMilliseconds);
         }
@@ -234,6 +257,14 @@ namespace Swarm.Core
         {
             Coverage.Recompute(Buildings.Buildings);
             Pheromones.RecomputeHoming(Buildings.Entrances());
+            Steering.Build(Pheromones, Balance.gradientSaturation);
+        }
+
+        /// <summary>调试 / 性能测试：在巢心附近生成工虫。返回实际生成数量。</summary>
+        public int SpawnWorkers(int count)
+        {
+            if (!Buildings.TryGetNestCore(out var core)) return 0;
+            return Agents.SpawnWorkers(Env, Balance, count, new float2(core.Tile) + 0.5f, 10f, Balance.startingMediumFraction, Seed);
         }
 
         // ---------------------------------------------------------------- debug
@@ -251,6 +282,12 @@ namespace Swarm.Core
         public void Dispose()
         {
             if (Buildings != null) Buildings.Changed -= OnBuildingsChanged;
+            foreach (var sys in _ownedSystems) sys.Dispose();
+            _ownedSystems.Clear();
+            Agents?.Dispose(); Agents = null;
+            Colony?.Dispose(); Colony = null;
+            Lookup?.Dispose(); Lookup = null;
+            Steering?.Dispose(); Steering = null;
             Pheromones?.Dispose(); Pheromones = null;
             Coverage?.Dispose(); Coverage = null;
             Cover?.Dispose(); Cover = null;

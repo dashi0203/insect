@@ -11,6 +11,7 @@ namespace Swarm.Input
         BrushGather, BrushRally, BrushAvoid, BrushErase, BrushCancel,
         DebugPlaceNode,
         DebugNextRegion, DebugNewSeed, DebugRegenerate, DebugTerrainOverlay, DebugDepleteResources, DebugNextSeason,
+        DebugSpawnWorkers,
     }
 
     /// <summary>
@@ -38,6 +39,7 @@ namespace Swarm.Input
             new[] { Key.M },                 // DebugTerrainOverlay
             new[] { Key.H },                 // DebugDepleteResources
             new[] { Key.RightBracket },      // DebugNextSeason
+            new[] { Key.K },                 // DebugSpawnWorkers（Shift = ×10）
         };
 
         /// <summary>UI 在指针下方时由 UI 层置位，世界交互（笔刷、悬停）据此忽略指针。</summary>
