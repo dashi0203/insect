@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b6b19b76014a37408da56eee5347d9f, type: 3}
+  m_Name: 1_acid_wetland
+  m_EditorClassIdentifier: Swarm.Runtime::Swarm.Data.RegionDef
+  id: acid_wetland
+  displayName: "\u9178\u96E8\u6E7F\u5730"
+  baseTemperature: 20
+  baseHumidity: 0.9
+  winterFraction: 0.15
+  baseAcidity: 0.2
+  acidRainIntervalSeconds: 360
+  distantFogIntervalSeconds: 720
+  biomes:
+  - biome: {fileID: 11400000, guid: 30e27f0f0bb92ae458c294638a0f9101, type: 2}
+    centerTemperature: 21
+    centerHumidity: 0.98
+  - biome: {fileID: 11400000, guid: 3e464f16bd3fbcf49b2b4ece61c06652, type: 2}
+    centerTemperature: 19
+    centerHumidity: 0.82
+  - biome: {fileID: 11400000, guid: a725418a597cc5c489aded3e6307ab47, type: 2}
+    centerTemperature: 17
+    centerHumidity: 0.9

@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04e070eb655da9e49a08a8d6c6a87f6b, type: 3}
+  m_Name: 8_giant_tree_fern
+  m_EditorClassIdentifier: Swarm.Runtime::Swarm.Data.ResourceNodeDef
+  id: giant_tree_fern
+  displayName: "\u5DE8\u578B\u6811\u8568"
+  kind: 2
+  amount: 0
+  infinite: 1
+  harvestRatePerSecond: 0.4
+  footprint: 3
+  regrowMode: 2
+  regrowSeconds: 0
+  isPlant: 1
+  stopsInCold: 1
+  minHumidity: 0
+  regrowSeasons: 15
+  moistureMin: 0.58
+  moistureMax: 1
+  fertilityMin: 0.6
+  densityPerChunk: 0.18
+  clusterMin: 1
+  clusterMax: 1
+  biomes:
+  - biome: {fileID: 11400000, guid: f4e59550f4e7bd848a33e05545ef9b79, type: 2}
+    weight: 1
+  - biome: {fileID: 11400000, guid: a725418a597cc5c489aded3e6307ab47, type: 2}
+    weight: 0.8
+  cliffAffinity: 0
+  waterEdgeAffinity: 0
+  shape: 4
+  size: {x: 8, y: 14, z: 8}
+  sizeJitter: {x: 0.85, y: 1.15}
+  color: {r: 0.22, g: 0.5, b: 0.22, a: 1}
+  secondaryColor: {r: 0.3, g: 0.22, b: 0.14, a: 1}

@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04e070eb655da9e49a08a8d6c6a87f6b, type: 3}
+  m_Name: 2_conifer_seed
+  m_EditorClassIdentifier: Swarm.Runtime::Swarm.Data.ResourceNodeDef
+  id: conifer_seed
+  displayName: "\u9488\u53F6\u843D\u7C7D"
+  kind: 0
+  amount: 20
+  infinite: 0
+  harvestRatePerSecond: 5
+  footprint: 1
+  regrowMode: 0
+  regrowSeconds: 180
+  isPlant: 1
+  stopsInCold: 0
+  minHumidity: 0
+  regrowSeasons: 15
+  moistureMin: 0.25
+  moistureMax: 0.75
+  fertilityMin: 0.35
+  densityPerChunk: 2
+  clusterMin: 2
+  clusterMax: 4
+  biomes:
+  - biome: {fileID: 11400000, guid: fc097efff3ddcd8479ba14677d40a598, type: 2}
+    weight: 1
+  cliffAffinity: 0
+  waterEdgeAffinity: 0
+  shape: 0
+  size: {x: 0.3, y: 0.25, z: 0.3}
+  sizeJitter: {x: 0.75, y: 1.3}
+  color: {r: 0.55, g: 0.35, b: 0.2, a: 1}
+  secondaryColor: {r: 0.35, g: 0.25, b: 0.18, a: 1}

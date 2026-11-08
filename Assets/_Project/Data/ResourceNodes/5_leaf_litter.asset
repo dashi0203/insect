@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04e070eb655da9e49a08a8d6c6a87f6b, type: 3}
+  m_Name: 5_leaf_litter
+  m_EditorClassIdentifier: Swarm.Runtime::Swarm.Data.ResourceNodeDef
+  id: leaf_litter
+  displayName: "\u843D\u53F6\u5806"
+  kind: 2
+  amount: 20
+  infinite: 0
+  harvestRatePerSecond: 5
+  footprint: 1
+  regrowMode: 1
+  regrowSeconds: 0
+  isPlant: 1
+  stopsInCold: 1
+  minHumidity: 0
+  regrowSeasons: 15
+  moistureMin: 0.4
+  moistureMax: 0.9
+  fertilityMin: 0.55
+  densityPerChunk: 2
+  clusterMin: 1
+  clusterMax: 1
+  biomes:
+  - biome: {fileID: 11400000, guid: f4e59550f4e7bd848a33e05545ef9b79, type: 2}
+    weight: 1
+  - biome: {fileID: 11400000, guid: a725418a597cc5c489aded3e6307ab47, type: 2}
+    weight: 1
+  - biome: {fileID: 11400000, guid: fc097efff3ddcd8479ba14677d40a598, type: 2}
+    weight: 0.6
+  cliffAffinity: 0
+  waterEdgeAffinity: 0
+  shape: 3
+  size: {x: 0.7, y: 0.12, z: 0.7}
+  sizeJitter: {x: 0.75, y: 1.3}
+  color: {r: 0.6, g: 0.4, b: 0.2, a: 1}
+  secondaryColor: {r: 0.35, g: 0.25, b: 0.18, a: 1}

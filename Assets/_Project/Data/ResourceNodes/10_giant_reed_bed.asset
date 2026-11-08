@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04e070eb655da9e49a08a8d6c6a87f6b, type: 3}
+  m_Name: 10_giant_reed_bed
+  m_EditorClassIdentifier: Swarm.Runtime::Swarm.Data.ResourceNodeDef
+  id: giant_reed_bed
+  displayName: "\u5DE8\u82C7\u4E1B"
+  kind: 2
+  amount: 0
+  infinite: 1
+  harvestRatePerSecond: 0.5
+  footprint: 2
+  regrowMode: 2
+  regrowSeconds: 0
+  isPlant: 1
+  stopsInCold: 1
+  minHumidity: 0
+  regrowSeasons: 15
+  moistureMin: 0.8
+  moistureMax: 1
+  fertilityMin: 0.2
+  densityPerChunk: 0.3
+  clusterMin: 1
+  clusterMax: 1
+  biomes:
+  - biome: {fileID: 11400000, guid: 30e27f0f0bb92ae458c294638a0f9101, type: 2}
+    weight: 1
+  cliffAffinity: 0
+  waterEdgeAffinity: 0.5
+  shape: 7
+  size: {x: 4, y: 7, z: 4}
+  sizeJitter: {x: 0.85, y: 1.15}
+  color: {r: 0.62, g: 0.62, b: 0.36, a: 1}
+  secondaryColor: {r: 0.35, g: 0.25, b: 0.18, a: 1}

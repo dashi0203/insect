@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04e070eb655da9e49a08a8d6c6a87f6b, type: 3}
+  m_Name: 6_mineral_outcrop
+  m_EditorClassIdentifier: Swarm.Runtime::Swarm.Data.ResourceNodeDef
+  id: mineral_outcrop
+  displayName: "\u77FF\u7269\u9732\u5934"
+  kind: 1
+  amount: 120
+  infinite: 0
+  harvestRatePerSecond: 5
+  footprint: 1
+  regrowMode: 2
+  regrowSeconds: 0
+  isPlant: 0
+  stopsInCold: 1
+  minHumidity: 0
+  regrowSeasons: 15
+  moistureMin: 0
+  moistureMax: 1
+  fertilityMin: 0
+  densityPerChunk: 1.2
+  clusterMin: 2
+  clusterMax: 4
+  biomes:
+  - biome: {fileID: 11400000, guid: 39df13d4f793b8940baf9aac86358c15, type: 2}
+    weight: 1
+  cliffAffinity: 0.8
+  waterEdgeAffinity: 0
+  shape: 6
+  size: {x: 0.8, y: 0.7, z: 0.8}
+  sizeJitter: {x: 0.75, y: 1.3}
+  color: {r: 0.45, g: 0.55, b: 0.7, a: 1}
+  secondaryColor: {r: 0.35, g: 0.25, b: 0.18, a: 1}

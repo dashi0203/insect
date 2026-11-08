@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04e070eb655da9e49a08a8d6c6a87f6b, type: 3}
+  m_Name: 0_fungus_cluster
+  m_EditorClassIdentifier: Swarm.Runtime::Swarm.Data.ResourceNodeDef
+  id: fungus_cluster
+  displayName: "\u83CC\u7C07"
+  kind: 0
+  amount: 25
+  infinite: 0
+  harvestRatePerSecond: 5
+  footprint: 1
+  regrowMode: 0
+  regrowSeconds: 60
+  isPlant: 1
+  stopsInCold: 1
+  minHumidity: 0.5
+  regrowSeasons: 15
+  moistureMin: 0.65
+  moistureMax: 1
+  fertilityMin: 0.55
+  densityPerChunk: 1.5
+  clusterMin: 3
+  clusterMax: 6
+  biomes:
+  - biome: {fileID: 11400000, guid: 3e464f16bd3fbcf49b2b4ece61c06652, type: 2}
+    weight: 1
+  - biome: {fileID: 11400000, guid: f4e59550f4e7bd848a33e05545ef9b79, type: 2}
+    weight: 0.6
+  cliffAffinity: 0
+  waterEdgeAffinity: 0
+  shape: 5
+  size: {x: 0.45, y: 0.4, z: 0.45}
+  sizeJitter: {x: 0.75, y: 1.3}
+  color: {r: 0.85, g: 0.72, b: 0.55, a: 1}
+  secondaryColor: {r: 0.9, g: 0.88, b: 0.8, a: 1}

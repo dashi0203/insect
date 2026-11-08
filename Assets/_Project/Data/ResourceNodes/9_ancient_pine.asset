@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04e070eb655da9e49a08a8d6c6a87f6b, type: 3}
+  m_Name: 9_ancient_pine
+  m_EditorClassIdentifier: Swarm.Runtime::Swarm.Data.ResourceNodeDef
+  id: ancient_pine
+  displayName: "\u53E4\u677E"
+  kind: 2
+  amount: 0
+  infinite: 1
+  harvestRatePerSecond: 0.35
+  footprint: 3
+  regrowMode: 2
+  regrowSeconds: 0
+  isPlant: 1
+  stopsInCold: 1
+  minHumidity: 0
+  regrowSeasons: 15
+  moistureMin: 0.28
+  moistureMax: 0.8
+  fertilityMin: 0.45
+  densityPerChunk: 0.2
+  clusterMin: 1
+  clusterMax: 1
+  biomes:
+  - biome: {fileID: 11400000, guid: fc097efff3ddcd8479ba14677d40a598, type: 2}
+    weight: 1
+  - biome: {fileID: 11400000, guid: 19af12b18185b9343aa94fb5bf57437c, type: 2}
+    weight: 0.3
+  cliffAffinity: 0
+  waterEdgeAffinity: 0
+  shape: 8
+  size: {x: 8, y: 22, z: 8}
+  sizeJitter: {x: 0.85, y: 1.15}
+  color: {r: 0.13, g: 0.26, b: 0.2, a: 1}
+  secondaryColor: {r: 0.33, g: 0.24, b: 0.17, a: 1}

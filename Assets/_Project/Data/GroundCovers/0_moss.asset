@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2f6a6709bd30d343bf52b47976d31eb, type: 3}
+  m_Name: 0_moss
+  m_EditorClassIdentifier: Swarm.Runtime::Swarm.Data.GroundCoverDef
+  id: moss
+  displayName: "\u82D4\u85D3"
+  color: {r: 0.36, g: 0.58, b: 0.2, a: 1}
+  minTemperature: 0
+  maxTemperature: 28
+  minHumidity: 0.55
+  maxHumidity: 1
+  biomes:
+  - biome: {fileID: 11400000, guid: f4e59550f4e7bd848a33e05545ef9b79, type: 2}
+    weight: 1
+  - biome: {fileID: 11400000, guid: a725418a597cc5c489aded3e6307ab47, type: 2}
+    weight: 1
+  - biome: {fileID: 11400000, guid: fc097efff3ddcd8479ba14677d40a598, type: 2}
+    weight: 0.8
+  - biome: {fileID: 11400000, guid: 30e27f0f0bb92ae458c294638a0f9101, type: 2}
+    weight: 0.3
+  cliffAffinity: 0
+  suitabilityThreshold: 0.35

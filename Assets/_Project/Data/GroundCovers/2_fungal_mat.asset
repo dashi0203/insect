@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2f6a6709bd30d343bf52b47976d31eb, type: 3}
+  m_Name: 2_fungal_mat
+  m_EditorClassIdentifier: Swarm.Runtime::Swarm.Data.GroundCoverDef
+  id: fungal_mat
+  displayName: "\u83CC\u6BEF"
+  color: {r: 0.62, g: 0.46, b: 0.62, a: 1}
+  minTemperature: 5
+  maxTemperature: 32
+  minHumidity: 0.7
+  maxHumidity: 1
+  biomes:
+  - biome: {fileID: 11400000, guid: 3e464f16bd3fbcf49b2b4ece61c06652, type: 2}
+    weight: 1
+  cliffAffinity: 0
+  suitabilityThreshold: 0.35

@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b6b19b76014a37408da56eee5347d9f, type: 3}
+  m_Name: 2_northern_tundra
+  m_EditorClassIdentifier: Swarm.Runtime::Swarm.Data.RegionDef
+  id: northern_tundra
+  displayName: "\u5317\u5883\u51BB\u539F"
+  baseTemperature: 4
+  baseHumidity: 0.45
+  winterFraction: 0.4
+  baseAcidity: 0.03
+  acidRainIntervalSeconds: 0
+  distantFogIntervalSeconds: 960
+  biomes:
+  - biome: {fileID: 11400000, guid: 19af12b18185b9343aa94fb5bf57437c, type: 2}
+    centerTemperature: 2
+    centerHumidity: 0.4
+  - biome: {fileID: 11400000, guid: fc097efff3ddcd8479ba14677d40a598, type: 2}
+    centerTemperature: 7
+    centerHumidity: 0.55
+  - biome: {fileID: 11400000, guid: 39df13d4f793b8940baf9aac86358c15, type: 2}
+    centerTemperature: 5
+    centerHumidity: 0.3

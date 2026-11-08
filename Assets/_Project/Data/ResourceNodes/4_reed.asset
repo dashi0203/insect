@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04e070eb655da9e49a08a8d6c6a87f6b, type: 3}
+  m_Name: 4_reed
+  m_EditorClassIdentifier: Swarm.Runtime::Swarm.Data.ResourceNodeDef
+  id: reed
+  displayName: "\u82A6\u82C7"
+  kind: 2
+  amount: 50
+  infinite: 0
+  harvestRatePerSecond: 5
+  footprint: 1
+  regrowMode: 0
+  regrowSeconds: 150
+  isPlant: 1
+  stopsInCold: 1
+  minHumidity: 0
+  regrowSeasons: 7
+  moistureMin: 0.78
+  moistureMax: 1
+  fertilityMin: 0.2
+  densityPerChunk: 1.5
+  clusterMin: 4
+  clusterMax: 8
+  biomes:
+  - biome: {fileID: 11400000, guid: 30e27f0f0bb92ae458c294638a0f9101, type: 2}
+    weight: 1
+  cliffAffinity: 0
+  waterEdgeAffinity: 0.6
+  shape: 7
+  size: {x: 0.4, y: 1.1, z: 0.4}
+  sizeJitter: {x: 0.75, y: 1.3}
+  color: {r: 0.7, g: 0.68, b: 0.4, a: 1}
+  secondaryColor: {r: 0.35, g: 0.25, b: 0.18, a: 1}

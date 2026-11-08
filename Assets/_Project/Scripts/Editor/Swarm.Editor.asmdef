@@ -1,0 +1,18 @@
+{
+    "name": "Swarm.Editor",
+    "rootNamespace": "Swarm.Editor",
+    "references": [
+        "Swarm.Runtime"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

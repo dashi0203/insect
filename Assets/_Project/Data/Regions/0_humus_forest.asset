@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b6b19b76014a37408da56eee5347d9f, type: 3}
+  m_Name: 0_humus_forest
+  m_EditorClassIdentifier: Swarm.Runtime::Swarm.Data.RegionDef
+  id: humus_forest
+  displayName: "\u8150\u6B96\u68EE\u6797"
+  baseTemperature: 18
+  baseHumidity: 0.75
+  winterFraction: 0.2
+  baseAcidity: 0.05
+  acidRainIntervalSeconds: 0
+  distantFogIntervalSeconds: 480
+  biomes:
+  - biome: {fileID: 11400000, guid: f4e59550f4e7bd848a33e05545ef9b79, type: 2}
+    centerTemperature: 17
+    centerHumidity: 0.79
+  - biome: {fileID: 11400000, guid: 3e464f16bd3fbcf49b2b4ece61c06652, type: 2}
+    centerTemperature: 20
+    centerHumidity: 0.92
+  - biome: {fileID: 11400000, guid: 0ccf2fbe1100a7747811d455ff63c9a1, type: 2}
+    centerTemperature: 21
+    centerHumidity: 0.58
+  - biome: {fileID: 11400000, guid: 39df13d4f793b8940baf9aac86358c15, type: 2}
+    centerTemperature: 14
+    centerHumidity: 0.62
